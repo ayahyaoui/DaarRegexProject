@@ -10,10 +10,10 @@ public class Automate {
 		this.firstNode = new RNode();
 		this.endNode = new RNode();
 		  if (code != RegEx.DOT)
-			  firstNode.next.put(code, endNode);
+		  	firstNode.addLink(endNode, code);
 		  else 
 			  for (int i = 1; i < 255; i++)
-				  firstNode.next.put(i, endNode);
+			  	firstNode.addLink(endNode, i);
 	}
 	
 	public Automate() {
