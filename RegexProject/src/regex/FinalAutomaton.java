@@ -1,13 +1,20 @@
 package regex;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class FinalAutomaton {
 	int nbNode;
 	final int SIZEOMEGA = 255;
 	int [][]matrix;
 	boolean []endsNode;
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
 	
 	public FinalAutomaton(int nbNode, int[][] matrix, boolean []endsNode) {
 		this.nbNode = nbNode;
@@ -49,6 +56,7 @@ public class FinalAutomaton {
 		int currentNode = 1;
 		int i;
 		
+
 		if (startIndex == text.length())
 			return -1; // didn't find anything
 		for (i = startIndex; i < text.length() && currentNode > 0 && !endsNode[currentNode]; i++)
@@ -58,33 +66,71 @@ public class FinalAutomaton {
 		return findPattern(text, startIndex + 1);
 	}
 
-	public void egrep(BufferedReader reader) throws IOException
+	
+	public int findPattern2(String text, int startIndex)
+	{
+		int currentNode = 1;
+		int i = 0;
+		
+		for (i = startIndex; i < text.length() && !endsNode[currentNode] && currentNode > 0; i++)
+		{
+			if ((int)text.charAt(i) > 255)
+				currentNode = 0;
+			else
+				currentNode = matrix[currentNode][(int)text.charAt(i)];
+		}
+		if (endsNode[currentNode])
+			return i;
+		return -1; // didn't find anything
+		//return findPattern(text, startIndex + 1);
+	}
+
+	public void egrep(BufferedReader reader, String fileName) throws IOException
 	{	
 		String line = reader.readLine();
-		Boolean found;
 		int index;
-		int nbLine = 1;
+		BufferedWriter writer;
+		int indexName = 1;
+		int nbFound = 0;
 
+		if (RegEx.ONFILE)
+		{
+			while (new File(fileName + indexName).isFile())
+				indexName++;
+			writer = new BufferedWriter(new FileWriter(fileName + indexName));
+
+		} 
+		
+
+		//line = new String(line.getBytes("ISO-8859-1"));
 		while (line != null)
 		{
-			found = false;
 			for(int i = 0; i < line.length(); i++)
 			{
-				index = findPattern(line, i);
+				index = findPattern2(line, i);
 				if (index > 0)
 				{
-					System.out.println(line.substring(i,index)); // TODO show entire line with pattern in red
-					found = true;
+					if (RegEx.ONFILE)
+						writer.write(line.substring(0, i) + ANSI_RED +  line.substring(i,index) + ANSI_RESET + line.substring(index));
+					if (RegEx.DISPLAY)
+						System.out.println(line.substring(0, i) + ANSI_RED +  line.substring(i,index) + ANSI_RESET + line.substring(index)); 
+					nbFound++;
 					break;
-
+					
 				}
 			}
-			if (found)
-				System.out.println("number line " + nbLine + ": " + line);
 			line = reader.readLine();
-			nbLine++;
+	
+			
+			//byte[] bytes = line.getBytes("UTF-8");
+			//line = new String(bytes);
+			//line = new String(line.getBytes("ISO-8859-1"));
 		}
+
+		System.out.println("RESULT FOUND " + nbFound + " OCURRENCE.");
 		reader.close();
+		if (RegEx.ONFILE)
+			writer.close();
 	}
 }
 

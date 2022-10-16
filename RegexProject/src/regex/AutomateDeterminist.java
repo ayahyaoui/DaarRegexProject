@@ -45,7 +45,8 @@ public class AutomateDeterminist {
 	
 		newNodes.sort((o1, o2) -> (o1.ID - o2.ID));
 		node_name = newNodes.toString();
-		System.out.print("tente ajout nouveau" + node_name);
+		if (RegEx.DISPLAY)
+			System.out.print("tente ajout nouveau" + node_name);
 	
 		if(!idGroups.containsKey(node_name))
 		{
@@ -58,57 +59,68 @@ public class AutomateDeterminist {
 				if (n1.ID == idEnd)
 					endNodesArrayList.set(endNodesArrayList.size() - 1, 1);
 			} 
-			System.out.println("  Sucess numero" + nbNewNode);
+			if (RegEx.DISPLAY)
+				System.out.println("  Sucess numero" + nbNewNode);
 			
 			this.nbNewNode++;
+
 			return this.nbNewNode-1;
 	}
-	System.out.println("  Failure");
+	if (RegEx.DISPLAY)
+		System.out.println("  Failure");
 	return idGroups.get(node_name);
+}
+private boolean isInNodeToPile(ArrayList<RNode> newNodes)
+{
+	String node_name;
+
+	newNodes.sort((o1, o2) -> (o1.ID - o2.ID));
+	node_name = newNodes.toString();
+	if (RegEx.DISPLAY)
+		System.out.print("tente ajout nouveau" + node_name);
+
+	return idGroups.containsKey(node_name);
 }
 
 	public  Automate AutomateTransition(Automate aust) {
 	List<RNode>[] tab = new List[255];
-	ArrayList<RNode> newNodes;
+	ArrayList<RNode> newGroup;
 	int i; 
 	int idOrigineNode; 
 
 	for (i = 0; i < 255; i++)
 		tab[i] = new ArrayList<RNode>();
 	
-	System.out.println("Determinastion, debut boucle");
 	while(pileGroups.size() > 0) // tant qu'il y'a de nouveaux noeud non trait�
 	{
-		newNodes = pileGroups.remove(0);
-		newNodes.sort((o1, o2) -> (o1.ID - o2.ID));
-		idOrigineNode = this.idGroups.get(newNodes.toString());
-		System.out.println("pop pile liste " + newNodes.size() );
+		newGroup = pileGroups.remove(0);
+		newGroup.sort((o1, o2) -> (o1.ID - o2.ID));
+		idOrigineNode = this.idGroups.get(newGroup.toString());
 		for (i = 0; i < 255; i++)
 			tab[i].clear();
-		for (RNode node : newNodes) {
-			System.out.println("    Node " + node.ID);
-			
+		for (RNode node : newGroup) {
 			for (Map.Entry<Integer, RNode> entry : node.next.entrySet()) {
 				tab[entry.getKey()].add(entry.getValue());
 				tab[entry.getKey()].addAll(entry.getValue().getAllDirectNode(new ArrayList<RNode>()));
-				System.out.println("        voisin case " + entry.getKey() + "nb: " + tab[entry.getKey()].size() );
 			}
 		}
 		
 		for (i = 0; i < 255; i++) {
 			if (!tab[i].isEmpty())
 			{
-				newNodes = new ArrayList<RNode>();
-				newNodes.addAll(tab[i]);
+				newGroup = new ArrayList<RNode>();
+				newGroup.addAll(tab[i]);
 				
-				int pos = addNodeToPile(newNodes);
-				if (pos == nbNewNode - 1)
+				if (!isInNodeToPile(newGroup))
 					matrix.add(new HashMap<Integer, Integer>());
+				int pos = addNodeToPile(newGroup);
 				matrix.get(idOrigineNode).put(i, pos);
 			}
 		}
 	}
+		if (RegEx.DISPLAY)
 	printDeterministAutomaton();
+	System.out.println(this.matrix.size() + " " + this.nbNewNode);
 	
 	
 	return null;

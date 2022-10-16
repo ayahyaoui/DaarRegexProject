@@ -24,6 +24,7 @@ public class AutomateMinimal {
 	int oldSize;
 	
 	public AutomateMinimal(AutomateDeterminist aut) {
+		if (RegEx.DISPLAY)
 		System.out.println("Minininimal" + aut.nbNewNode + " " + aut.matrix.size());
 		this.matrix = aut.matrix;
 		this.endNodes = aut.endNodesArrayList;
@@ -70,7 +71,6 @@ public class AutomateMinimal {
 			nextsNodesArrayList.add(voisin.getKey() + this.groups2[voisin.getValue()] * 255);					
 		}
 		nextsNodesArrayList.sort((o1, o2) -> (o1 - o2));
-		System.out.println("neighbors: " + nextsNodesArrayList.toString());
 		return (nextsNodesArrayList.toString());
 	}
 	
@@ -105,8 +105,6 @@ public class AutomateMinimal {
 		String[] nextsNodeStrings;
 		int i; 
 		
-		System.out.println("Debut Minimize" + this.nbGroup + " / " + this.oldSize);
-		
 		nextsNodeStrings = new String[this.oldSize + 10];
 		change = true;
 		int limitToRemove = 10;
@@ -116,12 +114,14 @@ public class AutomateMinimal {
 			change = false;
 			for (HashMap<Integer, Integer> voisins : matrix)
 			{
-				System.out.println("" + i +" / " + this.oldSize + voisins);
+				System.out.println(i + " " + this.oldSize);
+				
 				nextsNodeStrings[i] = neighborsCode(voisins);
 				i++;
 			}
+			if (RegEx.DISPLAY)
 			afficheDebug(nextsNodeStrings);
-			System.out.println("check all nodes");
+			
 			// refresh chefgroup code
 			for (i = 0; i< this.nbGroup; i++)
 			{
@@ -149,48 +149,39 @@ public class AutomateMinimal {
 			}
 			limitToRemove--;
 		}
-		System.out.println("End while Fin " + this.nbGroup + " " + limitToRemove);
-		System.out.println("Create final automaton");
+		
 		int [][]finalMatrix = new int[nbGroup + 1][SIZEOMEGA];
 		boolean []finalEndsNode = new boolean[nbGroup + 1];
 		finalEndsNode[0] = false;
 		
 		System.out.println(matrix.size());
-		/*
-		i = 0;
-		for (HashMap<Integer, Integer> voisins : matrix)
-		{
-			System.out.println("before" + i + "/" + nbGroup + " " + oldSize);
 
-			for (Map.Entry<Integer, Integer> voisin : voisins.entrySet()) {
-				//finalMatrix[this.groups2[i - 1]][voisin.getKey()] = voisin.getValue() + 1 ;
-				System.out.println(" =>" + voisin.getKey() + " => " + voisin.getValue());
-				//nextsNodesArrayList.add(voisin.getKey() + this.groups2[voisin.getValue()] * 255);					
-			}
-			System.out.println("after" + i + "/" + nbGroup + " " + oldSize);
-			i++;
-		}
-		*/
 
 		i = 0;
 		for (HashMap<Integer, Integer> voisins : matrix)
 		{
 			if(i >= oldSize)
 				break;
+				if (RegEx.DISPLAY)
 			System.out.println("before" + i + "/" + nbGroup + " " + oldSize);
 			if (endNodes.get(i) == 1)
 				finalEndsNode[this.groups2[i] + 1] = true; 
 			for (Map.Entry<Integer, Integer> voisin : voisins.entrySet()) {
 				finalMatrix[this.groups2[i] + 1][voisin.getKey()] = groups2[voisin.getValue()] + 1 ;
+				if (RegEx.DISPLAY)
 				System.out.println(" => " + voisin.getKey() + "=> " + (voisin.getValue() + 1));
 				//nextsNodesArrayList.add(voisin.getKey() + this.groups2[voisin.getValue()] * 255);					
 			}
+			if (RegEx.DISPLAY)
 			System.out.println("after" + i + "/" + nbGroup + " " + oldSize);
 			i++;
 		}
+		if (RegEx.DISPLAY)
 		System.out.println("end" + i + "/" + nbGroup + " " + oldSize);
 		FinalAutomaton testAutomaton = new FinalAutomaton(nbGroup + 1, finalMatrix, finalEndsNode);
+		if (RegEx.DISPLAY)
 		System.out.println("\n\n<<<<=======LAST STEP=======>");
+		if (RegEx.DISPLAY)
 		testAutomaton.displayAutomaton();
 		return testAutomaton;
 	}

@@ -14,6 +14,8 @@ public class RegEx {
   static final int PLUS = 0xE70112; // SET VALUE
   static final int ALTERN = 0xA17E54;
   static final int PROTECTION = 0xBADDAD;
+  static final boolean DISPLAY = false;
+  static final boolean ONFILE = false;
 
   static final int PARENTHESEOUVRANT = 0x16641664;
   static final int PARENTHESEFERMANT = 0x51515151;
@@ -35,12 +37,13 @@ public static void main(String arg[]){
     BufferedReader reader = null;
     FinalAutomaton automaton;
     RegExTree ret;
-    String pathText;
+    String pathText = null;
 
     if (arg.length == 2) {
       regEx = arg[0];
+      pathText= arg[1];
 		  try {
-			  reader = new BufferedReader(new FileReader(arg[1]));
+			  reader = new BufferedReader(new FileReader(pathText));
          
       } catch (IOException e) {
         System.out.println("bad path...\n Usage: executable regex path_text\n");
@@ -72,7 +75,10 @@ public static void main(String arg[]){
     if (automaton != null)
     {
       try {
-        automaton.egrep(reader);
+
+        while (pathText.indexOf("/") > 0)
+          pathText =  pathText.substring(pathText.indexOf("/") + 1);
+        automaton.egrep(reader, regEx + "__" + pathText);
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -112,8 +118,11 @@ public static void main(String arg[]){
 	System.out.println("LES CHOSE SERIEUSE COMMENCES !!");
 
   Automate automate = ret.toAutomate();
-	System.out.println(automate);
-	System.out.println("======================");
+	if (DISPLAY)
+  {
+    System.out.println(automate);
+    System.out.println("======================");
+  } 
 	AutomateDeterminist automateDeterminist  = new AutomateDeterminist(automate) ;//(automate);
 	automateDeterminist.AutomateTransition(automate);
 	AutomateMinimal resAutomateMinimal = new AutomateMinimal(automateDeterminist);

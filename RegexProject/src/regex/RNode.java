@@ -18,7 +18,7 @@ class RNode {
 		this.next = new HashMap<Integer, RNode>();
 		this.epsilon =new ArrayList<RNode>();
 		ID = compteur;
-		System.out.println(ID);	
+
 	}
 	
 	@Override
